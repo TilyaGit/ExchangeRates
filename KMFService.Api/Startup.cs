@@ -19,7 +19,8 @@ namespace KMFService.Api
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
-            services.AddTransient<ICurrencyProviderClient, CurrencyProviderClient, ICurrencyManager>();
+            services.AddTransient<ICurrencyProviderClient, CurrencyProviderClient>();
+            services.AddTransient<ICurrencyManager, CurrencyManager>();
             services.AddHttpClient();
 
             var appConnection = Configuration.RegisterConfig();

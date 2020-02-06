@@ -13,19 +13,12 @@ namespace KMFService.Api.Controllers
     {
         private readonly ICurrencyProviderClient _currencyProviderClient;
         private readonly ICurrencyManager _currencyManager;
-        
 
-        private readonly ILogger _logger;
-
-        public CurrencyController([NotNull] ICurrencyProviderClient currencyProviderClient, 
-                                  [NotNull] ILogger logger,
+        public CurrencyController([NotNull] ICurrencyProviderClient currencyProviderClient,
                                   [NotNull] ICurrencyManager currencyManager)
-
         {
             _currencyProviderClient = currencyProviderClient ?? 
                                       throw new ArgumentNullException(nameof(currencyProviderClient));
-            _logger = logger ?? 
-                      throw new ArgumentNullException(nameof(logger));
             _currencyManager = currencyManager ?? 
                                throw new ArgumentNullException(nameof(currencyManager));
         }
@@ -37,53 +30,65 @@ namespace KMFService.Api.Controllers
             if (dateOn <= DateTime.MinValue ||
                 dateOn >= DateTime.MaxValue)
                 return BadRequest();
-            
+
             try
             { 
                 var rates = await _currencyProviderClient.Get(dateOn);
 
-                _logger.Log("Получены валюты из апи");
-
-                var currencies = Map(rates.Currencies);
+                var currencies = Map(rates, dateOn);
 
                 _currencyManager.SaveList(currencies);
-
-                _logger.Log("Валюты сохранены");
 
                 return Ok(currencies.Count);
             }
             catch (Exception e)
             {
-                _logger.Log($"Невозможно получить и сохранить курсы валют. {e}");
                 return StatusCode((int) HttpStatusCode.InternalServerError);
             }
         }
 
 
         [HttpGet]
-        [Route("save")]
-        public async Task<IActionResult> Save(DateTime dateOn, string code = null)
+        [Route("currency")]
+        public async Task<IActionResult> GetCurrency()//DateTime dateOn, string code = null
         {
+            DateTime dateOn = DateTime.Today;
+            string code = null;
+
             if (dateOn <= DateTime.MinValue ||
                 dateOn >= DateTime.MaxValue)
                 return BadRequest();
 
             try
             {
-                //Currency currencies = _manager.Get(dateOn, code);
+                var currencies = _currencyManager.GetList(dateOn, code);
 
-                return Ok(); //currencies);
+                return Ok(currencies); 
             }
             catch (Exception e)
             {
-                _logger.Log($"Невозможно получить валюты {e}");
                 return StatusCode((int)HttpStatusCode.InternalServerError);
             }
         }
 
-        private IList<Currency> Map(CurrencyDto[] ratesCurrencies)
+        public IList<Currency> Map(RatesDto ratesDto, DateTime date)
         {
-            return null;
+            var currencies = new List<Currency>();
+
+            foreach (var currencyDto in ratesDto.Currencies)
+            {
+                var currency = new Currency
+                {
+                    Title = currencyDto.Title,
+                    Code = currencyDto.Quant,
+                    Value = currencyDto.Description,
+                    Date = date,
+                };
+
+                currencies.Add(currency);
+            }
+
+            return currencies;
         }
     }
 }

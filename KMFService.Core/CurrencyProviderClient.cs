@@ -19,7 +19,7 @@ namespace KMFService.Core
         {
             using (var httpClient = _httpClientFactory.CreateClient())
             {
-                var date = dateOn.ToString("dd.mm.yyyy");
+                var date = dateOn.ToString("dd.MM.yyyy");
                 var strUrl = $"https://nationalbank.kz/rss/get_rates.cfm?fdate={date}";
                 var result = await httpClient.GetStringAsync(strUrl);
 

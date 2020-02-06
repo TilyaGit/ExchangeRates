@@ -1,4 +1,5 @@
-﻿using System.Xml.Serialization;
+﻿using System;
+using System.Xml.Serialization;
 
 namespace KMFService.Core
 {
@@ -10,6 +11,9 @@ namespace KMFService.Core
 
         [XmlElement(ElementName = "item")]
         public CurrencyDto[] Currencies { get; set; }
+
+        //[XmlElement(ElementName = "date")]
+        //public DateTime Date { get; set; }
     }
 
     public class  CurrencyDto

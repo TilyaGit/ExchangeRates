@@ -6,7 +6,6 @@ namespace KMFService.Core
     public interface ICurrencyManager
     {
         void SaveList(IList<Currency> currencies);
-        Currency Get(in DateTime dateOn, string code);
-
+        IList<Currency> GetList(in DateTime dateOn, string code);
     }
 }

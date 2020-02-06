@@ -14,8 +14,12 @@ PRIMARY KEY,
 
 )
 
-CREATE PROCEDURE sp_GetRates AS
+ALTER PROCEDURE[dbo].[sp_GetRates]
+@date Date,
+@code varchar(3)
+AS
 BEGIN
 SELECT ID, TITLE, CODE, VALUE, A_DATE
 FROM R_CURRENCY
+WHERE A_DATE = @date and CODE = @code
 END;
