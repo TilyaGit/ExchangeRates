@@ -17,9 +17,9 @@ namespace KMFService.Api.Controllers
         public CurrencyController([NotNull] ICurrencyProviderClient currencyProviderClient,
                                   [NotNull] ICurrencyManager currencyManager)
         {
-            _currencyProviderClient = currencyProviderClient ?? 
+            _currencyProviderClient = currencyProviderClient ??
                                       throw new ArgumentNullException(nameof(currencyProviderClient));
-            _currencyManager = currencyManager ?? 
+            _currencyManager = currencyManager ??
                                throw new ArgumentNullException(nameof(currencyManager));
         }
 
@@ -32,7 +32,7 @@ namespace KMFService.Api.Controllers
                 return BadRequest();
 
             try
-            { 
+            {
                 var rates = await _currencyProviderClient.Get(dateOn);
 
                 var currencies = Map(rates, dateOn);
@@ -41,20 +41,17 @@ namespace KMFService.Api.Controllers
 
                 return Ok(currencies.Count);
             }
-            catch (Exception e)
+            catch (Exception)
             {
-                return StatusCode((int) HttpStatusCode.InternalServerError);
+                return StatusCode((int)HttpStatusCode.InternalServerError);
             }
         }
 
 
         [HttpGet]
         [Route("currency")]
-        public async Task<IActionResult> GetCurrency()//DateTime dateOn, string code = null
+        public async Task<IActionResult> GetCurrency(DateTime dateOn, string code = null)
         {
-            DateTime dateOn = DateTime.Today;
-            string code = null;
-
             if (dateOn <= DateTime.MinValue ||
                 dateOn >= DateTime.MaxValue)
                 return BadRequest();
@@ -63,9 +60,9 @@ namespace KMFService.Api.Controllers
             {
                 var currencies = _currencyManager.GetList(dateOn, code);
 
-                return Ok(currencies); 
+                return Ok(currencies);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 return StatusCode((int)HttpStatusCode.InternalServerError);
             }
@@ -84,10 +81,8 @@ namespace KMFService.Api.Controllers
                     Value = currencyDto.Description,
                     Date = date,
                 };
-
                 currencies.Add(currency);
             }
-
             return currencies;
         }
     }

@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
+using System.Linq;
+using Dapper;
 using JetBrains.Annotations;
 using KMFService.Core;
-using Newtonsoft.Json.Linq;
 
 namespace KMFService.Api
 {
@@ -47,7 +48,7 @@ namespace KMFService.Api
                     sqlConnection.Close();
                 }
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 // ignored
             }
@@ -56,46 +57,17 @@ namespace KMFService.Api
         public IList<Currency> GetList(in DateTime dateOn, string code)
         { 
             var connectionString = _configuration.SqlConnection;
-            var sqlExpression = "sp_GetRates";
-
-            try
+            using (var sqlConnection = new SqlConnection(connectionString))
             {
-                DataTable dataTable = new DataTable();
+                sqlConnection.Open();
 
-                using (var sqlConnection = new SqlConnection(connectionString))
-                {
-                    sqlConnection.Open();
-                    var sqlCommand = new SqlCommand(sqlExpression, sqlConnection);
-                    sqlCommand.CommandType = CommandType.StoredProcedure;
-                    SqlParameter dateParam = new SqlParameter
-                    {
-                        ParameterName = "@date",
-                        Value = "dateOn"
-                    };
-                    sqlCommand.Parameters.Add(dateParam);
+                var currencies =
+                    sqlConnection.Query<Currency>("dbo.sp_GetRates", new { date = dateOn, code = code }, commandType: CommandType.StoredProcedure).ToList();
 
-                    SqlParameter codeParam = new SqlParameter
-                    {
-                        ParameterName = "@code",
-                        Value = "code"
-                    };
-                    sqlCommand.Parameters.Add(codeParam);
-
-                    var result = sqlCommand.ExecuteNonQuery();
-
-                    //var reader = sqlCommand.ExecuteReader();
-
-                    
-
-                    sqlConnection.Close();
-                }
-            }
-            catch (Exception e)
-            {
-                // ignored
+                sqlConnection.Close();
+                return currencies;
             }
 
-            return null;
         }
     }
 }

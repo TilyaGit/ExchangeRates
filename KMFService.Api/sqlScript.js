@@ -23,3 +23,7 @@ SELECT ID, TITLE, CODE, VALUE, A_DATE
 FROM R_CURRENCY
 WHERE A_DATE = @date and CODE = @code
 END;
+
+USE[TEST];
+GO
+EXEC dbo.sp_GetRates @Date="2020-02-07", @Code=10;
